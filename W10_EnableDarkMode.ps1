@@ -21,29 +21,40 @@ param(
 	[switch]$uninstall
 )
 
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference="SilentlyContinue"
+$logFile = ('{0}\{1}.log' -f $env:Temp, [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))
 
 
 if ($install)
 {
-	try
-	{          
-        New-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme -Value 0 -Force
-    }
-	catch
-	{
-		$PSCmdlet.WriteError($_)
-	}
+    Start-Transcript -path $logFile
+        try
+        {         
+            New-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme -Value 0 -Force
+            
+            $null = New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" -Name "W10_EnableDarkMode" –Force
+            $null = New-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\W10_EnableDarkMode" -Name "Version" -PropertyType "String" -Value "1.0" -Force
+            $null = New-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\W10_EnableDarkMode" -Name "Revision" -PropertyType "String" -Value "001" -Force
+        } 
+        catch
+        {
+            $PSCmdlet.WriteError($_)
+        }
+    Stop-Transcript
 }
 
 if ($uninstall)
 {
-	try
-	{
-        Remove-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme -Force
-	}
-	catch
-	{
-		$PSCmdlet.WriteError($_)
-	}
+    Start-Transcript -path $logFile
+        try
+        {
+            Remove-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme -Force
+            
+            Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\W10_EnableDarkMode" -Force -Recurse
+        }
+        catch
+        {
+            $PSCmdlet.WriteError($_)
+        }
+    Stop-Transcript
 }
