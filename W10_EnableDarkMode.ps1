@@ -22,7 +22,7 @@ param(
 )
 
 $ErrorActionPreference="SilentlyContinue"
-$logFile = ('{0}\{1}.log' -f $env:Temp, [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))
+$logFile = ('{0}\{1}.log' -f "C:\Windows\Logs", [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Name))
 
 
 if ($install)
@@ -30,9 +30,9 @@ if ($install)
     Start-Transcript -path $logFile
         try
         {         
-            New-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme -Value 0 -Force
+            New-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name AppsUseLightTheme -Value 0 -Force
             
-            $null = New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" -Name "W10_EnableDarkMode" –Force
+            $null = New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" -Name "W10_EnableDarkMode" -Force
             $null = New-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\W10_EnableDarkMode" -Name "Version" -PropertyType "String" -Value "1.0" -Force
             $null = New-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\W10_EnableDarkMode" -Name "Revision" -PropertyType "String" -Value "001" -Force
         } 
